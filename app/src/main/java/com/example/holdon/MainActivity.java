@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             increase();
             displayScore();
+            displayHighScore();
             timerHandler.postDelayed(this, 100);
         }
     };
@@ -60,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void stopCount() {
         timerHandler.removeCallbacks(timerRunnable);
-        updateHighScore();
-        displayHighScore();
+        saveHighScore();
         this.score = -1;
     }
 
@@ -75,12 +75,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void increase() {
         this.score += 1;
+        updateHighScore();
     }
 
     public void updateHighScore() {
         if(this.score > this.highScore) {
             this.highScore = score;
-            saveHighScore();
         }
     }
 
