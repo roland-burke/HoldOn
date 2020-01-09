@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView scoreTV;
     private TextView highScoreTV;
     private Button holdBtn;
+    private Toast toast = null;
 
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public void stopCount() {
         timerHandler.removeCallbacks(timerRunnable);
         saveHighScore();
+        displayToast();
         this.score = -1;
     }
 
@@ -71,6 +74,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void displayHighScore() {
         this.highScoreTV.setText(Integer.toString(this.highScore));
+    }
+
+    public void displayToast() {
+        String toastString = "Geeez you're so bad!";
+        if(this.score >= this.highScore) {
+            toastString = "DAAAMN, you beat your HighScore!";
+        }
+        if(toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(MainActivity.this, toastString,
+                Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public void increase() {
