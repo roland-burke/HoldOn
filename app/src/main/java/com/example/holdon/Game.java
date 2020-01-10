@@ -1,13 +1,15 @@
 package com.example.holdon;
 
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.Observable;
 
 public class Game extends Observable {
     private int score = 0; // current Score
     private int highScore;
-    private int delay = 100; // delay in milliseconds
+    private int delay = 80; // delay in milliseconds
+    private int milestone;
     private Handler timerHandler;
     private Runnable timerRunnable;
 
@@ -41,6 +43,10 @@ public class Game extends Observable {
 
     private void increase() {
         this.score += 1;
+        Log.d("division", Integer.toString(score / 100));
+        if(score % 100 == 0) {
+            this.milestone = score;
+        }
         updateHighScore();
     }
 
@@ -56,5 +62,9 @@ public class Game extends Observable {
 
     public int getHighScore() {
         return this.highScore;
+    }
+
+    public int getMilestone() {
+        return this.milestone;
     }
 }

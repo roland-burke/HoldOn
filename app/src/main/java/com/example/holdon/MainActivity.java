@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     private TextView scoreTV;
     private TextView highScoreTV;
+    private TextView milestoneTV;
     private Button holdBtn;
     private Toast toast = null;
     private Game game;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         game.addObserver(this);
         scoreTV = findViewById(R.id.textView2);
         highScoreTV = findViewById(R.id.textView4);
+        milestoneTV = findViewById(R.id.textView8);
         holdBtn = findViewById(R.id.button);
 
         displayHighScore();
@@ -55,6 +57,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public void displayHighScore() {
         this.highScoreTV.setText(Integer.toString(game.getHighScore()));
+    }
+
+    public void displayReached() {
+        this.milestoneTV.setText(Integer.toString(game.getMilestone()));
     }
 
     public void displayToast() {
@@ -87,5 +93,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     public void update(Observable o, Object arg) {
         displayScore();
         displayHighScore();
+        displayReached();
     }
 }
