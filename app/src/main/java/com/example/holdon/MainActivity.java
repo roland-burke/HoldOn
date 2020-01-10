@@ -4,81 +4,62 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Observable;
+import java.util.Observer;
 
-    private int score = 0;
-    private int highScore = 0;
+public class MainActivity extends AppCompatActivity implements Observer {
+
     private TextView scoreTV;
     private TextView highScoreTV;
     private Button holdBtn;
     private Toast toast = null;
-
-    Handler timerHandler = new Handler();
-    Runnable timerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            increase();
-            displayScore();
-            displayHighScore();
-            timerHandler.postDelayed(this, 100);
-        }
-    };
-
+    private Game game;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        game = new Game(loadHighScore());
+        game.addObserver(this);
         scoreTV = findViewById(R.id.textView2);
         highScoreTV = findViewById(R.id.textView4);
         holdBtn = findViewById(R.id.button);
 
-        loadHighScore();
         displayHighScore();
 
         holdBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    startCount();
+                    game.startCount();
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    stopCount();
+                    displayToast();
+                    game.stopCount();
+                    saveHighScore();
                 }
             return false;
             }
         });
     }
 
-    public void startCount() {
-        timerHandler.postDelayed(timerRunnable, 0);
-    }
-
-    public void stopCount() {
-        timerHandler.removeCallbacks(timerRunnable);
-        saveHighScore();
-        displayToast();
-        this.score = -1;
-    }
-
     public void displayScore() {
-        this.scoreTV.setText(Integer.toString(score));
+        this.scoreTV.setText(Integer.toString(game.getScore()));
     }
 
     public void displayHighScore() {
-        this.highScoreTV.setText(Integer.toString(this.highScore));
+        this.highScoreTV.setText(Integer.toString(game.getHighScore()));
     }
 
     public void displayToast() {
         String toastString = "Geeez you're so bad!";
-        if(this.score >= this.highScore) {
+        if(game.reachedHighScore()) {
             toastString = "DAAAMN, you beat your HighScore!";
         }
         if(toast != null) {
@@ -89,27 +70,22 @@ public class MainActivity extends AppCompatActivity {
         toast.show();
     }
 
-    public void increase() {
-        this.score += 1;
-        updateHighScore();
-    }
-
-    public void updateHighScore() {
-        if(this.score > this.highScore) {
-            this.highScore = score;
-        }
-    }
 
     public void saveHighScore() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("HoldOnData", 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("highScore", highScore);
+        editor.putInt("highScore", game.getHighScore());
         editor.apply();
     }
 
-    public void loadHighScore() {
+    public int loadHighScore() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("HoldOnData", 0);
-        this.highScore = settings.getInt("highScore", 0);
+        return settings.getInt("highScore", 0);
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        displayScore();
+        displayHighScore();
+    }
 }
